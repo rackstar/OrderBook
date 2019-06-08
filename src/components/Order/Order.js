@@ -16,7 +16,7 @@ export default class Order extends Component {
 
     }
     
-    ws = new WebSocket("wss://ws.bitstamp.net");
+    // ws = new WebSocket("wss://ws.bitstamp.net")
 
     componentDidMount(){
         this.setState({
@@ -29,7 +29,7 @@ export default class Order extends Component {
         const sub = e.target.value
         const unsub = this.state.book
         this.setState({book: sub})
-        this.initWebsocket(sub, unsub);
+        this.initWebsocket(sub, unsub)
     }
 
     
@@ -37,25 +37,25 @@ export default class Order extends Component {
         let subscribe = {
             "event": "bts:subscribe",
             "data": {
-                "channel": `order_book_${this.state.sub}`
+                "channel": `order_book_${sub}`
             }
         }
 
         // let unsubscribe = {
         //     "event": "bts:unsubscribe",
         //     "data": {
-        //         "channel": `order_book_${this.state.unsub}`
+        //         "channel": `order_book_${unsub}`
         //     }
         // }
 
-        // let ws = new WebSocket("wss://ws.bitstamp.net");
+        let ws = new WebSocket("wss://ws.bitstamp.net")
 
-        this.ws.onopen = () => {
-            this.ws.send(JSON.stringify(subscribe));
+        ws.onopen = () => {
+            ws.send(JSON.stringify(subscribe))
         };
 
-        this.ws.onmessage = (ev) => {
-            let response = JSON.parse(ev.data);
+        ws.onmessage = (ev) => {
+            let response = JSON.parse(ev.data)
             if(response.event === 'data'){
                 console.log(response.data)
             } else {
@@ -63,9 +63,8 @@ export default class Order extends Component {
             }
         };
  
-        this.ws.onclose = () => {
-            console.log('Websocket connection closed');
-            this.initWebsocket();
+        ws.onclose = () => {
+            this.initWebsocket()
         };
     }
 
