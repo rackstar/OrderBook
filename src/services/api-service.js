@@ -32,12 +32,24 @@ const getUnsubscribePayload = currencyPair => {
 export const subscribe = currencyPair => {
   console.log(`Subscribing to currencyPair: ${currencyPair}`);
   const subscribePayload = getSubscribePayload(currencyPair);
+  if (!ws) {
+    console.error(
+      `No websocket connection found! Please call connectSocket() first`
+    );
+    return;
+  }
   ws.send(subscribePayload);
 };
 
 export const unsubscribe = currencyPair => {
   console.log(`Unsubscribing to currencyPair: ${currencyPair}`);
   const unsubscribePayload = getUnsubscribePayload(currencyPair);
+  if (!ws) {
+    console.error(
+      `No websocket connection found! Please call connectSocket() first`
+    );
+    return;
+  }
   ws.send(unsubscribePayload);
 };
 

@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import OrderContext from "../../context/OrderContext";
-import OrderList from "../OrderList/OrderList";
-import { BTC_USD, XRP_USD } from "../../utils/constants";
 import {
   connectSocket,
   subscribe,
   unsubscribe
 } from "../../services/api-service";
+import OrderList from "../OrderList";
+import { BTC_USD, XRP_USD, SELECT_CURRENCY } from "../../utils/constants";
+
 const DATA_EVENT = "data";
+
 export default class Order extends Component {
   static contextType = OrderContext;
 
@@ -47,15 +49,15 @@ export default class Order extends Component {
     if (currencyPairUnsubscribe) {
       unsubscribe(currencyPairUnsubscribe);
     }
-    console.log("currencyPairSubscribe: ", currencyPairSubscribe);
-    if (currencyPairSubscribe !== "Select currency") {
-      subscribe(currencyPairSubscribe);
+    if (currencyPairSubscribe === SELECT_CURRENCY) {
+      return this.setState({ ordersData: null });
     }
+    subscribe(currencyPairSubscribe);
     this.setState({ book: currencyPairSubscribe }); // make sure subscribe is successful before updating state
   };
 
   render() {
-    const { ordersData } = this.state;
+    const { ordersData, book } = this.state;
     const options = this.state.currencies.map((option, idx) => (
       <option key={idx} value={option.value.toLowerCase()}>
         {option.option}
@@ -74,7 +76,7 @@ export default class Order extends Component {
             {options}
           </select>
           <div className="list">
-            <OrderList ordersData={ordersData} />
+            <OrderList ordersData={ordersData} currencyPair={book} />
           </div>
         </div>
       </>
