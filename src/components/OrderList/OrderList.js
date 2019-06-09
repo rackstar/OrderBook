@@ -1,13 +1,11 @@
 import React from "react";
 
 const BuyOrder = ({ ordersData }) => {
-  console.log(ordersData);
-
   if (ordersData) {
-    const bids = ordersData.bids.map(bid => bid.join("@"));
-    const asks = ordersData.asks.map(ask => (
-      <tr>
-        <td>{ask.join("@")}</td>
+    const market = ordersData.bids.map((bid, index) => (
+      <tr key={index}>
+        <td>{bid.join(" @ ")}</td>
+        <td>{ordersData.asks[index].join("@")}</td>
       </tr>
     ));
 
@@ -15,11 +13,11 @@ const BuyOrder = ({ ordersData }) => {
       <table>
         <thead>
           <tr>
-            <th> Bids </th>
-            <th> Ask </th>
+            <th>Bids</th>
+            <th>Ask</th>
           </tr>
         </thead>
-        <tbody>{asks}</tbody>
+        <tbody>{market}</tbody>
       </table>
     );
   }

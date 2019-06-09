@@ -2,8 +2,6 @@ const BIT_STAMP_WS_URL = "wss://ws.bitstamp.net";
 const BTS_SUBSCRIBE_EVENT = "bts:subscribe";
 const BTC_UNSUBSCRIBE_EVENT = "bts:unsubscribe";
 
-const DATA_EVENT = "data";
-
 let ws;
 
 const connectedHandler = () =>

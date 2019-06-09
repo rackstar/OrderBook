@@ -19,7 +19,6 @@ export class OrderProvider extends Component {
     const value = {
       data: this.state.data
     };
-    console.log(this.state.data);
 
     return (
       <OrderContext.Provider value={value}>
