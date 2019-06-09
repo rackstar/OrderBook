@@ -1,92 +1,83 @@
-import React, { Component } from 'react';
-import OrderContext from '../../context/OrderContext'
-import OrderList from '../OrderList/OrderList'
-
-
+import React, { Component } from "react";
+import OrderContext from "../../context/OrderContext";
+import OrderList from "../OrderList/OrderList";
+import { BTC_USD, XRP_USD } from "../../utils/constants";
+import {
+  connectSocket,
+  subscribe,
+  unsubscribe
+} from "../../services/api-service";
+const DATA_EVENT = "data";
 export default class Order extends Component {
-    static contextType = OrderContext;
+  static contextType = OrderContext;
 
-    constructor(){
-        super()
-        this.state = {
-            book: '',
-            error: null,
-            currencies: [{value: "btcusd", option: "BTC/USD"}, {value: "xrpusd", option: "XRP/USD"}]
-        }
+  constructor() {
+    super();
+    this.state = {
+      book: "",
+      error: null,
+      currencies: [
+        { value: BTC_USD.value, option: BTC_USD.option },
+        { value: XRP_USD.value, option: XRP_USD.option }
+      ],
+      ordersData: null
+    };
+  }
 
+  componentDidMount() {
+    this.setState({
+      book: "",
+      error: null
+    });
+    connectSocket(this.onMessageHandler);
+  }
+
+  onMessageHandler = ev => {
+    const { event, data } = ev && ev.data ? JSON.parse(ev.data) : {};
+    if (event === DATA_EVENT) {
+      this.setState({
+        ordersData: data
+      });
     }
-    
-    // ws = new WebSocket("wss://ws.bitstamp.net")
+  };
 
-    componentDidMount(){
-        this.setState({
-            book: '',
-            error: null
-        })
+  handleOnChange = e => {
+    const currencyPairSubscribe = e.target.value;
+    const currencyPairUnsubscribe = this.state.book;
+    if (currencyPairUnsubscribe) {
+      unsubscribe(currencyPairUnsubscribe);
     }
-
-    handleOnChnge = (e) =>{
-        const sub = e.target.value
-        const unsub = this.state.book
-        this.setState({book: sub})
-        this.initWebsocket(sub, unsub)
+    console.log("currencyPairSubscribe: ", currencyPairSubscribe);
+    if (currencyPairSubscribe !== "Select currency") {
+      subscribe(currencyPairSubscribe);
     }
+    this.setState({ book: currencyPairSubscribe }); // make sure subscribe is successful before updating state
+  };
 
-    
-    initWebsocket = (sub, unsub) => {
-        let subscribe = {
-            "event": "bts:subscribe",
-            "data": {
-                "channel": `order_book_${sub}`
-            }
-        }
+  render() {
+    const { ordersData } = this.state;
+    const options = this.state.currencies.map((option, idx) => (
+      <option key={idx} value={option.value.toLowerCase()}>
+        {option.option}
+      </option>
+    ));
 
-        // let unsubscribe = {
-        //     "event": "bts:unsubscribe",
-        //     "data": {
-        //         "channel": `order_book_${unsub}`
-        //     }
-        // }
-
-        let ws = new WebSocket("wss://ws.bitstamp.net")
-
-        ws.onopen = () => {
-            ws.send(JSON.stringify(subscribe))
-        };
-
-        ws.onmessage = (ev) => {
-            let response = JSON.parse(ev.data)
-            if(response.event === 'data'){
-                console.log(response.data)
-            } else {
-                this.initWebsocket()
-            }
-        };
- 
-        ws.onclose = () => {
-            this.initWebsocket()
-        };
-    }
-
-    render(){
-        const options = this.state.currencies.map((option, idx )=> {
-                return <option key={idx} value={option.value.toLowerCase()}>{option.option}</option>
-        })
-        return (
-            <>
-              <h1>Order Book!</h1>
-              <div className="order">
-              {this.context.error !== null && <div className="alert-error">{this.context.errors}</div>}
-                    <select className="select-currency" onChange={this.handleOnChnge}>
-                        <option defaultValue="">Select currency</option>
-                        {options}
-                    </select>
-                    <div className="list">
-                        <OrderList />
-                    </div>
-                    
-              </div>
-            </>
-        )
-    }
+    return (
+      <>
+        <h1>Order Book!</h1>
+        <div className="order">
+          {this.context.error !== null && (
+            <div className="alert-error">{this.context.errors}</div>
+          )}
+          <select className="select-currency" onChange={this.handleOnChange}>
+            <option defaultValue="">Select currency</option>
+            {options}
+          </select>
+          <div className="list">
+            <OrderList ordersData={ordersData} />
+          </div>
+        </div>
+      </>
+    );
+  }
 }

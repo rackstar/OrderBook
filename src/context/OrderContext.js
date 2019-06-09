@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
 const OrderContext = React.createContext({
   data: []
@@ -7,20 +7,24 @@ const OrderContext = React.createContext({
 export default OrderContext;
 
 export class OrderProvider extends Component {
-    state = {
-        data: []
-    }
-    
-    
-    render() {
-        const value = {
-            data: this.state.data
-        };
+  state = {
+    data: []
+  };
 
-        return (
-        <OrderContext.Provider value={value}>
-            {this.props.children}
-        </OrderContext.Provider>
-        );
-    }
+  setOrders = orders => {
+    this.setState({ data: [...this.state.data, orders] });
+  };
+
+  render() {
+    const value = {
+      data: this.state.data
+    };
+    console.log(this.state.data);
+
+    return (
+      <OrderContext.Provider value={value}>
+        {this.props.children}
+      </OrderContext.Provider>
+    );
+  }
 }
